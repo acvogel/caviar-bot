@@ -36,7 +36,7 @@ class CaviarBot(token: String,
     val attachments = restaurant.toSlackAttachment
     val cartOpts  = opts + ("attachments" -> attachments)
     val body = s"@channel $message $cartUrl"
-    var retries = 5
+    var retries = 1
     var response: Option[PostMessageResponse] = None
     do {
       try {
@@ -55,7 +55,7 @@ class CaviarBot(token: String,
   def postTrackingMessage(channelID: String,
                           trackingUrl: String,
                           message: String): Option[PostMessageResponse] = {
-    var retries = 5
+    var retries = 1
     var response: Option[PostMessageResponse] = None
     do {
       try {
@@ -74,7 +74,7 @@ class CaviarBot(token: String,
   /** Post a tracking url */
   def postMessage(channelID: String,
                   message: String): Option[PostMessageResponse] = {
-    var retries = 5
+    var retries = 1
     var response: Option[PostMessageResponse] = None
     do {
       try {
