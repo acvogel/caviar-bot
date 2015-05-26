@@ -100,7 +100,8 @@ class CaviarBot(token: String,
    * @return first restaurant which contains name as a substring
    */
   def findRestaurant(name: String): Option[Restaurant] = {
-    restaurants.find(_.name.toLowerCase.contains(name.toLowerCase))
+    val cleanedName = name.toLowerCase.replaceAll("""['"]""", "")
+    restaurants.find(_.name.toLowerCase.contains(cleanedName))
   }
  
   /** Lookup the channelID string by name, case insensitive exact match */

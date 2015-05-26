@@ -52,7 +52,7 @@ class SlackService extends HttpServiceActor with ActorLogging {
         randbot.postMessage(channel_id, message)
         complete(HttpResponse(status = 200))
       }
-    }// ~
+    } ~
     path("caviar") {
       formFields("token", "team_id", "team_domain", "channel_id", "channel_name", "user_id", "user_name", "command", "text") { (token, team_id, team_domain, channel_id, channel_name, user_id, user_name, command, text) =>
         val args = text.split("""\s+""")
@@ -67,7 +67,6 @@ class SlackService extends HttpServiceActor with ActorLogging {
           case e: Exception =>
             complete(e.getMessage())
         }
-        //complete(HttpResponse(status = 200))
       }
     }
   }
