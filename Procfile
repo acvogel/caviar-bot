@@ -1,1 +1,1 @@
-web: sbt 'run-main com.signalfire.slack.server.Main'
+web: target/universal/stage/bin/caviar-bot

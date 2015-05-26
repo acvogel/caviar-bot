@@ -1,3 +1,7 @@
+import NativePackagerKeys._
+
+packageArchetype.java_application
+
 //import AssemblyKeys._
 
 //assemblySettings
@@ -8,13 +12,11 @@
 
 //mainClass in assembly := Some("com.signalfire.slack.FacelessBot")
 
-import NativePackagerKeys._
-
-packageArchetype.java_application
-
 name := "caviar-bot"
 
-//sbt.version=0.13.6
+mainClass in Compile := Some("com.signalfire.slack.server.Main")
+
+mainClass in (Compile, run) := Some("com.signalfire.slack.server.Main")
 
 resolvers += Resolver.sonatypeRepo("public")
 
@@ -47,6 +49,7 @@ libraryDependencies ++= {
     "io.spray"            %%  "spray-testkit" % sprayV  % "test",
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
-    "org.specs2"          %%  "specs2-core"   % "2.3.11" % "test"
+    "org.specs2"          %%  "specs2-core"   % "2.3.11" % "test",
+    "postgresql" % "postgresql" % "9.0-801.jdbc4"
   )
 }

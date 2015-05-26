@@ -7,12 +7,17 @@ import play.api.libs.json.{Json, JsValue}
 
 import scala.io.Source
 
+import java.sql.{Connection, DriverManager, Statement, PreparedStatement, ResultSet}
+import java.net.URI
+import java.util.Properties
+
 case class Restaurant(name: String, text: String, image: String) {
   /** Json representation of Slack API message "attachments" */
   def toSlackAttachment: String = Json.toJson(List(Map("image_url" -> image, "title" -> name, "text" -> text))).toString
 
   override def toString: String = s"Name: $name Text: $text Image: $image"
 }
+
 
 class CaviarBot(token: String, 
                 restaurants: Seq[Restaurant], 
@@ -27,6 +32,7 @@ class CaviarBot(token: String,
                  "link_names" -> "1",
                  "icon_url" -> icon_url
                 )
+
 
   /** Post a cart message to a given channelID (also works for IM IDs) */
   def postCartMessage(channelID: String, 
@@ -128,6 +134,29 @@ class CaviarBot(token: String,
     } while(!response.isDefined && retries > 0)
     response
   }
+
+  def slashMain(args: Array[String], channel_id: String, user_name: String): Option[String] = {
+    CaviarBot.parser.parse(args, CaviarBot.Config()) match {
+      case Some(config) =>
+        config.mode match {
+          case "cart" =>
+            findRestaurant(config.restaurantName) match {
+              case Some(restaurant) =>
+                postCartMessage(channel_id, restaurant, config.url, config.cartMessage)
+                None
+              case None =>
+                Some("Can't find restaurant " + config.restaurantName)
+            }
+          case "post" =>
+            postMessage(channel_id, config.message)
+            None
+          case _ =>
+            None
+        }
+      case None =>
+        None
+    } 
+  }
 }
 
 object CaviarBot {
@@ -137,6 +166,57 @@ object CaviarBot {
                   parseCaviarHomepage(caviarPage),
                   name,
                   icon_url)
+  }
+
+  def apply(token: String, name: String, icon_url: String) = {
+    new CaviarBot(token, 
+                  loadRestaurants,
+                  name,
+                  icon_url)
+  }
+
+  def loadRestaurants: Seq[Restaurant] = {
+    val connection = getConnection
+    val sql = "SELECT name, text, image FROM RESTAURANT"
+    val stmt = connection.createStatement()
+    val rs = stmt.executeQuery(sql)
+    def processRow(rs: ResultSet) = {
+      new Restaurant(rs.getString(1), rs.getString(2), rs.getString(3))
+    }
+    Iterator.continually((rs.next(), rs)).
+             takeWhile(_._1).             
+             map(r => processRow(r._2)).
+             toSeq
+  }
+
+  def populateRestaurants(restaurants: Seq[Restaurant]) {
+    val connection = getConnection
+    restaurants.foreach { case Restaurant(name, text, image) =>
+      val query = s"INSERT INTO RESTAURANT (name, text, image) VALUES (?, ?, ?)"
+      val pstmt = connection.prepareStatement(query)
+      pstmt.setString(1, name)
+      pstmt.setString(2, text)
+      pstmt.setString(3, image)
+      pstmt.execute()
+    }
+  }
+
+  def getConnection(): Connection  = {
+    val dbUri = new URI(System.getenv("DATABASE_URL")) 
+  
+    val username = dbUri.getUserInfo().split(":")(0)
+    val password = dbUri.getUserInfo().split(":")(1)
+    val dbUrl = "jdbc:postgresql://" + dbUri.getHost() + ':' + dbUri.getPort() + dbUri.getPath() 
+    val properties = new Properties()
+    properties.setProperty("user", dbUri.getUserInfo().split(":")(0))
+    properties.setProperty("password", dbUri.getUserInfo().split(":")(1))
+    //properties.setProperty("ssl", "true")
+    //properties.setProperty("sslfactory", "org.postgresql.ssl.NonValidatingFactory")
+    DriverManager.getConnection(dbUrl, properties)
+
+    //println("dbURl: " + dbUrl)
+  //+ " ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
+    //DriverManager.getConnection(dbUrl, username, password);
   }
 
   // auth url
@@ -215,10 +295,11 @@ object CaviarBot {
         c.copy(trackingMessage = if(c.trackingMessage.equals("tracking")) x else c.trackingMessage + s" $x") } text("Message text (default: tracking)")
     )
 
-    cmd("message") action { (_, c) =>
-      c.copy(mode = "message") } text("Post a message") children(
-      arg[String]("<message>") unbounded() action { (x, c) =>
-        c.copy(message = x) } text ("Message text")
+    cmd("post") action { (_, c) =>
+      c.copy(mode = "post") } text("Post a message") children(
+      arg[String]("<message>") unbounded() optional() action { (x, c) =>
+        c.copy(message = if(c.message == null) x else c.message + s" $x") } text("Message text")
+        //c.copy(message = x) } text ("Message text")
     )
 
     help("help") text("Prints this usage text")
@@ -239,6 +320,7 @@ object CaviarBot {
       }
     }
   }
+
 
   def main(args: Array[String]): Unit = {
     parser.parse(args, Config()) match {
@@ -285,7 +367,7 @@ object CaviarBot {
             if (toPost) {
               bot.postTrackingMessage(channelID, config.url, config.trackingMessage)
             }
-          case "message" =>
+          case "post" =>
             val toPost = if (config.force) {
               true
             } else {
