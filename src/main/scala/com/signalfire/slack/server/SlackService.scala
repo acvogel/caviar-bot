@@ -9,12 +9,6 @@ import spray.http._
 import DefaultJsonProtocol._
 import scala.util.Random
 
-/*
- *entity: HttpEntity(application/x-www-form-urlencoded,token=6k1qC7WdQzOEXO9ZgyWxo2YV&team_id=T02FFM8FZ&team_domain=beacon-signalfire&channel_id=D02QN31K1&channel_name=directmessage&user_id=U02QN31HT&user_name=adam&command=%2Frand&text=here+is+some+text)
- * */
-
-// ok, now we do slackbot post? do we post AS the user?
-
 class SlackService extends HttpServiceActor with ActorLogging {
   //val token = getSlackToken(config)
   val token = "xoxp-2525722543-2838103605-3934407642-0221ac"
@@ -25,7 +19,6 @@ class SlackService extends HttpServiceActor with ActorLogging {
                       "http://i.imgur.com/k32GPRf.jpg"
                      )
 
-  //def caviarbot = CaviarBot("xoxp-2525722543-2838103605-3934407642-0221ac", //token, 
   def caviarbot = CaviarBot(token, 
                       //"resources/Caviar _ San Francisco-2.html",
                       "Caviar",
@@ -43,11 +36,11 @@ class SlackService extends HttpServiceActor with ActorLogging {
         val message = SlackService.parseDice(text) match {
           case Some((dice, sides)) =>
             val xs = SlackService.roll(dice, sides)
-            s"${dice}d${sides}: ${xs.mkString(" + ")} = ${xs.sum}"
+            s"$user_name rolled ${dice}d${sides}:\n${xs.mkString(" + ")} = ${xs.sum}"
           case _ => 
             val outcome = SlackService.roll(1, 2)
             val name = if (outcome.sum == 2) "heads" else "tails"
-            s"Coin flip: $name"
+            s"$user_name flipped a coin:\n$name"
         }
         randbot.postMessage(channel_id, message)
         complete(HttpResponse(status = 200))
