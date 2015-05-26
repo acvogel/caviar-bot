@@ -10,21 +10,11 @@ import DefaultJsonProtocol._
 import scala.util.Random
 
 class SlackService extends HttpServiceActor with ActorLogging {
-  //val token = CaviarBot.getSlackToken(config)
   val token = sys.env("SLACK_TOKEN")
-  //val token = "xoxp-2525722543-2838103605-3934407642-0221ac"
 
-  def randbot = CaviarBot(token, 
-                      "resources/Caviar _ San Francisco-2.html",
-                      "rand paul",
-                      "http://i.imgur.com/k32GPRf.jpg"
-                     )
+  def randbot = CaviarBot(token, "rand paul", "http://i.imgur.com/hFPz2fM.jpg")
 
-  def caviarbot = CaviarBot(token, 
-                      //"resources/Caviar _ San Francisco-2.html",
-                      "Caviar",
-                      "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png"
-                     )
+  def caviarbot = CaviarBot(token, "Caviar", "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png")
                       
   def receive = runRoute {
     path("ping") {
