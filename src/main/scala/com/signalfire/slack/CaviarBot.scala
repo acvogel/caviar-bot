@@ -162,9 +162,10 @@ class CaviarBot(token: String,
 
 object CaviarBot {
   def apply(token: String, caviarPagePath: String, name: String, icon_url: String) = {
-    val caviarPage = Source.fromFile(caviarPagePath).getLines.mkString
+    //val caviarPage = Source.fromFile(caviarPagePath).getLines.mkString
     new CaviarBot(token, 
-                  parseCaviarHomepage(caviarPage),
+                  Seq(),
+                  //parseCaviarHomepage(caviarPage),
                   name,
                   icon_url)
   }

@@ -9,18 +9,25 @@ import spray.http._
 import DefaultJsonProtocol._
 import scala.util.Random
 
-class SlackService extends HttpServiceActor with ActorLogging {
+class SlackServiceActor extends Actor with SlackService {
+  def actorRefFactory = context
+
   val token = sys.env("SLACK_TOKEN")
-
-  def randbot = CaviarBot(token, "rand paul", "http://i.imgur.com/hFPz2fM.jpg")
-
+  def randbot = CaviarBot(token, "wefwef", "rand paul", "http://i.imgur.com/hFPz2fM.jpg")
   def caviarbot = CaviarBot(token, "Caviar", "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png")
 
-  // ok, what is route handler signautre? formatfield or w/e -> response
-  // first let's fix the parsing.
-  // : Unit
-                      
-  def receive = runRoute {
+  def receive = runRoute(slackServiceRoute)
+}
+
+
+trait SlackService extends HttpService {
+  def token: String// = sys.env("SLACK_TOKEN")
+
+  def randbot: CaviarBot// = CaviarBot(token, "wefwef", "rand paul", "http://i.imgur.com/hFPz2fM.jpg")
+
+  def caviarbot: CaviarBot //= CaviarBot(token, "Caviar", "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png")
+
+  val slackServiceRoute = {
     path("ping") {
       get {
         complete("PONG")
@@ -62,6 +69,7 @@ class SlackService extends HttpServiceActor with ActorLogging {
     }
   }
 }
+
 object SlackService {
   def roll(dice: Int, sides: Int): Seq[Int] = 1 to dice map { _ => Random.nextInt(sides) + 1 }
 
