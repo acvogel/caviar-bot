@@ -47,7 +47,6 @@ class SlackService extends HttpServiceActor with ActorLogging {
         val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(text).
                                                  map(_.toLowerCase.replaceAll("""['"]""", "")).
                                                  toArray
-          //val cleanedName = name.toLowerCase.replaceAll("""['"]""", "")
         try {
           val message = caviarbot.slashMain(args, channel_id, user_name)
           if (message.isDefined) {
