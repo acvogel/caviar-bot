@@ -18,6 +18,7 @@ class SlackService extends HttpServiceActor with ActorLogging {
 
   // ok, what is route handler signautre? formatfield or w/e -> response
   // first let's fix the parsing.
+  // : Unit
                       
   def receive = runRoute {
     path("ping") {
@@ -43,8 +44,10 @@ class SlackService extends HttpServiceActor with ActorLogging {
     path("caviar") {
       formFields("token", "team_id", "team_domain", "channel_id", "channel_name", "user_id", "user_name", "command", "text") { (token, team_id, team_domain, channel_id, channel_name, user_id, user_name, command, text) =>
         //val args = text.split("""\s+""")
-        val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(text).toArray
-
+        val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(text).
+                                                 map(_.toLowerCase.replaceAll("""['"]""", "")).
+                                                 toArray
+          //val cleanedName = name.toLowerCase.replaceAll("""['"]""", "")
         try {
           val message = caviarbot.slashMain(args, channel_id, user_name)
           if (message.isDefined) {
