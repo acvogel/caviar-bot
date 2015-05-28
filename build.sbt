@@ -1,14 +1,13 @@
 import NativePackagerKeys._
+import AssemblyKeys._
 
 packageArchetype.java_application
 
-//import AssemblyKeys._
+assemblySettings
 
-//assemblySettings
+test in assembly := {}
 
-//test in assembly := {}
-
-//mainClass in assembly := Some("com.signalfire.slack.CaviarBot")
+mainClass in assembly := Some("com.signalfire.slack.CaviarBot")
 
 //mainClass in assembly := Some("com.signalfire.slack.FacelessBot")
 
