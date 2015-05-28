@@ -44,6 +44,7 @@ class SlackService extends HttpServiceActor with ActorLogging {
       formFields("token", "team_id", "team_domain", "channel_id", "channel_name", "user_id", "user_name", "command", "text") { (token, team_id, team_domain, channel_id, channel_name, user_id, user_name, command, text) =>
         //val args = text.split("""\s+""")
         val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(text).toArray
+
         try {
           val message = caviarbot.slashMain(args, channel_id, user_name)
           if (message.isDefined) {
