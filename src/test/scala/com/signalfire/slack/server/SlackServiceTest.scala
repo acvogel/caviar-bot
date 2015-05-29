@@ -12,21 +12,24 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 
+import org.joda.time.DateTime
+
 class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSugar with SlackService {
   def actorRefFactory = system
 
   val token = "gIkuvaNzQIHg97ATvDxqgjtO"
 
   val randbot = mock[CaviarBot]
-  when(randbot.postMessage(anyString(), anyString())).thenReturn(Some(PostMessageResponse(true, "", "", null)))
+  when(randbot.postMessage(anyString(), anyString())).
+               thenReturn(Some(PostMessageResponse(true, "", "", DateTime.now)))
 
-  val caviarbot = mock[CaviarBot]
-  when(randbot.postMessage(anyString(), anyString())).thenReturn(Some(PostMessageResponse(true, "", "", null)))
-
-  // so basically, we 
-  // 1. check status code of response
-  // 2. check that postMessage is called with one of the acceptable messages, to the correct channel
-
+  //val caviarbot = mock[CaviarBot]
+  //when(CaviarBot.loadRestaurants).thenReturn(Seq())
+  //def caviarbot = CaviarBot(token, "Caviar", "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png")
+  //val caviarbot = new CaviarBot(token, Seq(), "Caviar", "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png")
+  //val caviarbot = mock[CaviarBot]
+  //when(caviarbot.postMessage(anyString(), anyString())).
+  //             thenReturn(Some(PostMessageResponse(true, "", "", DateTime.now)))
 
   val team_id = "T0001"
   val team_domain = "example"
@@ -56,11 +59,19 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
     }
   }
 
-  test ("/rand should roll dice") {
+  test("/rand should roll dice") {
     Post("/rand", slashCommandFormData("rand", "3d4")) ~> slackServiceRoute ~> check {
       assert(status == OK)
       val answerRegex = s"$user_name rolled 3d4:\n[1-4] \\+ [1-4] \\+ [1-4] = ((1[012])|([1-9]))"
       verify(randbot).postMessage(matches(channel_id), matches(answerRegex))
     }
   }
+
+  //test("/caviar should post messages") {
+  //  val message = "my message for posting"
+  //  Post("/caviar", slashCommandFormData("caviar", s"post $message")) ~> slackServiceRoute ~> check {
+  //    verify(caviarbot).postMessage(matches(channel_id), matches(message))
+  //    assert(status == OK)
+  //  }
+  //}
 }

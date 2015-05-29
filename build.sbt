@@ -43,6 +43,8 @@ libraryDependencies ++= {
     "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
     "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
     "org.mockito" % "mockito-core" % "1.8.5",
+    "joda-time" % "joda-time" % "2.5",
+    "org.joda" % "joda-convert" % "1.2",
     "postgresql" % "postgresql" % "9.0-801.jdbc4"
   )
 }

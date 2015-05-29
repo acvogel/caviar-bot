@@ -52,7 +52,7 @@ trait SlackService extends HttpService {
       formFields("token", "team_id", "team_domain", "channel_id", "channel_name", "user_id", "user_name", "command", "text") { (token, team_id, team_domain, channel_id, channel_name, user_id, user_name, command, text) =>
         //val args = text.split("""\s+""")
         val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(text).
-                                                 map(_.toLowerCase.replaceAll("""['"]""", "")).
+                                                 map(_.replaceAll("""['"]""", "")).
                                                  toArray
         try {
           val message = caviarbot.slashMain(args, channel_id, user_name)

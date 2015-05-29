@@ -177,7 +177,7 @@ object CaviarBot {
                   icon_url)
   }
 
-  def loadRestaurants: Seq[Restaurant] = {
+  def loadRestaurants(): Seq[Restaurant] = {
     val connection = getConnection
     val sql = "SELECT name, text, image FROM RESTAURANT"
     val stmt = connection.createStatement()
@@ -203,6 +203,7 @@ object CaviarBot {
     }
   }
 
+  /** This should probably move to SlackService companion object */
   def getConnection(): Connection  = {
     val dbUri = new URI(System.getenv("DATABASE_URL")) 
   
@@ -212,13 +213,10 @@ object CaviarBot {
     val properties = new Properties()
     properties.setProperty("user", dbUri.getUserInfo().split(":")(0))
     properties.setProperty("password", dbUri.getUserInfo().split(":")(1))
+    // Needed for accessing database from outside Heroku
     //properties.setProperty("ssl", "true")
     //properties.setProperty("sslfactory", "org.postgresql.ssl.NonValidatingFactory")
     DriverManager.getConnection(dbUrl, properties)
-
-    //println("dbURl: " + dbUrl)
-  //+ " ssl=true&sslfactory=org.postgresql.ssl.NonValidatingFactory"
-    //DriverManager.getConnection(dbUrl, username, password);
   }
 
   // auth url
