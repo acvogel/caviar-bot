@@ -19,9 +19,12 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
 
   val token = "gIkuvaNzQIHg97ATvDxqgjtO"
 
-  val randbot = mock[CaviarBot]
-  when(randbot.postMessage(anyString(), anyString())).
-               thenReturn(Some(PostMessageResponse(true, "", "", DateTime.now)))
+  val randBot = spy(new RandBot(token, "", ""))
+  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(randBot).postMessage(anyString, anyString)
+
+  //val randBot = new RandBot(token, "", "") {
+  //  override def postMessage(a: String, b: String) = Some(PostMessageResponse(true, "", "", DateTime.now))
+  //}
 
   //val caviarbot = mock[CaviarBot]
   //when(CaviarBot.loadRestaurants).thenReturn(Seq())
@@ -55,7 +58,7 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
     Post("/rand", slashCommandFormData("rand", "")) ~> slackServiceRoute ~> check {
       assert(status == OK)
       val answerRegex = s"$user_name flipped a coin:\n(heads|tails)"
-      verify(randbot).postMessage(matches(channel_id), matches(answerRegex))
+      verify(randBot).postMessage(matches(channel_id), matches(answerRegex))
     }
   }
 
@@ -63,7 +66,7 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
     Post("/rand", slashCommandFormData("rand", "3d4")) ~> slackServiceRoute ~> check {
       assert(status == OK)
       val answerRegex = s"$user_name rolled 3d4:\n[1-4] \\+ [1-4] \\+ [1-4] = ((1[012])|([1-9]))"
-      verify(randbot).postMessage(matches(channel_id), matches(answerRegex))
+      verify(randBot).postMessage(matches(channel_id), matches(answerRegex))
     }
   }
 
