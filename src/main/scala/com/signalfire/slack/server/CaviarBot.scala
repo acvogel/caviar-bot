@@ -8,8 +8,8 @@ import spray.http.FormData
 class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlashBot(token, name, icon_url) {
   
   def handlePostRequest(formData: SlackSlashFormData) {
-    println(s"""args: ${args.mkString("; ")} text: ${formData.text}""")
     val args = parseArgs(formData.text)
+    println(s"""args: ${args.mkString("; ")} text: ${formData.text}""")
     CaviarBot.parser.parse(args, CaviarBot.Config()) match {
       case Some(config) =>
         config.mode match {
