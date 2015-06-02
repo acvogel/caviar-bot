@@ -35,7 +35,7 @@ class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlas
   /** Split like bash shell, respecting quotes */
   def parseArgs(text: String): Array[String] = {
     """[\""'\u2018].+?[\""'\u2019]|[^ ]+""".r.findAllIn(text).
-                                  map(_.replaceAll("""['"]""", "")).
+                                  map(_.replaceAll("""['"\u2018\u2019]""", "")).
                                   toArray
   }
 
