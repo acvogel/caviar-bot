@@ -19,13 +19,16 @@ class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlas
               case Some(restaurant) =>
                 postCartMessage(restaurant, formData.channel_id, config)
               case None =>
+                postMessage(formData.channel_id, s"""Missing restaurant "${config.restaurantName}"""", opts)
             }
           case "post" =>
             postMessage(formData.channel_id, config.message, opts)
           case _ =>
+            postMessage(formData.channel_id, s"""Unknown caviar command: "${formData.text}"""", opts)
             None
         }
       case None =>
+        postMessage(formData.channel_id, s"""Unknown caviar command: "${formData.text}"""", opts)
         None 
     }
   }
