@@ -8,10 +8,8 @@ import spray.http.FormData
 class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlashBot(token, name, icon_url) {
   
   def handlePostRequest(formData: SlackSlashFormData) {
-    val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(formData.text).
-                                             map(_.replaceAll("""['"]""", "")).
-                                             toArray
     println(s"""args: ${args.mkString("; ")} text: ${formData.text}""")
+    val args = parseArgs(formData.text)
     CaviarBot.parser.parse(args, CaviarBot.Config()) match {
       case Some(config) =>
         config.mode match {
@@ -32,6 +30,13 @@ class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlas
         postMessage(formData.channel_id, s"""Unknown caviar command: "${formData.text}"""", opts)
         None 
     }
+  }
+
+  /** Split like bash shell, respecting quotes */
+  def parseArgs(text: String): Array[String] = {
+    """[\""'\u2018].+?[\""'\u2019]|[^ ]+""".r.findAllIn(text).
+                                  map(_.replaceAll("""['"]""", "")).
+                                  toArray
   }
 
   /** Factored out for testing purposes */
