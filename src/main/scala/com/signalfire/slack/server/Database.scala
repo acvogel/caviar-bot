@@ -24,9 +24,9 @@ object Database {
 
   def findRestaurant(name: String): Option[Restaurant] = {
     val connection = getConnection()
-    val sql = s"SELECT id, name, text, image FROM RESTAURANT WHERE name LIKE ? LIMIT 1"
+    val sql = s"SELECT id, name, text, image FROM RESTAURANT WHERE name ILIKE ? LIMIT 1"
     val pstmt = connection.prepareStatement(sql)
-    pstmt.setString(1, '%' + name + '%')
+    pstmt.setString(1, name + '%')
     val rs = pstmt.executeQuery()
     val found = rs.next()
     if (found) {
