@@ -36,7 +36,6 @@ object Database {
     }
   }
 
-  // todo force name unique constraint
   def populateRestaurants(restaurants: Seq[Restaurant]) {
     val connection = getConnection
     restaurants.foreach { case Restaurant(id, name, text, image) =>

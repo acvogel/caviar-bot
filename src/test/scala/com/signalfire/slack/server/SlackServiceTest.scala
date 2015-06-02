@@ -1,7 +1,5 @@
 package com.signalfire.slack.server
 
-//import com.signalfire.slack.CaviarBot
-
 import com.flyberrycapital.slack.Responses._
 import org.scalatest.FunSuite
 import spray.http.StatusCodes._
@@ -18,24 +16,21 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
   def actorRefFactory = system
 
   val token = "gIkuvaNzQIHg97ATvDxqgjtO"
-
-  val randBot = spy(new RandBot(token, "", ""))
-  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(randBot).postMessage(anyString, anyString)
-
-  //val randBot = new RandBot(token, "", "") {
-  //  override def postMessage(a: String, b: String) = Some(PostMessageResponse(true, "", "", DateTime.now))
-  //}
-
-  val caviarBot = spy(new CaviarBot(token, "", ""))
-  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(caviarBot).postMessage(anyString, anyString, anyObject.asInstanceOf[Map[String, String]])
-
-
   val team_id = "T0001"
   val team_domain = "example"
   val channel_id = "C2147483705"
   val channel_name = "test"
   val user_id = "U2147483697"
   val user_name = "Steve"
+  val restaurant = Restaurant(0, "Cha Cha Cha", "", "")
+
+  val randBot = spy(new RandBot(token, "", ""))
+  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(randBot).postMessage(anyString, anyString)
+
+  val caviarBot = spy(new CaviarBot(token, "", ""))
+  doReturn(Some(restaurant)).when(caviarBot).findRestaurant("cha cha")
+  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(caviarBot).postCartMessage(restaurant, channel_id, CaviarBot.Config("cart", "cha cha", "www.google.com", "lunch cart"))
+
 
   /** Make a post request for a Slack slash command */
   def slashCommandFormData(command: String, text: String): FormData = {
@@ -74,13 +69,12 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
     }
   }
 
-  // TODO mock database
   test("/caviar should post carts") {
-    val restaurant = "cha"
+    val restaurantName = "'cha cha'"
     val url = "www.google.com"
     val message = "lunch cart"
-    Post("/caviar", slashCommandFormData("caviar", s"cart $restaurant $url $message")) ~> slackServiceRoute ~> check {
-      //verify(caviarBot).postCartMessage
+    Post("/caviar", slashCommandFormData("caviar", s"cart $restaurantName $url $message")) ~> slackServiceRoute ~> check {
+      verify(caviarBot).postCartMessage(restaurant, channel_id, CaviarBot.Config("cart", "cha cha", "www.google.com", "lunch cart"))
       assert(status == OK)
     }
   }

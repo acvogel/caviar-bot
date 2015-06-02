@@ -8,32 +8,36 @@ import spray.http.FormData
 class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlashBot(token, name, icon_url) {
   
   def handlePostRequest(formData: SlackSlashFormData) {
-    val args = formData.text.split("\\s+") // split here
+    val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(formData.text).
+                                             map(_.replaceAll("""['"]""", "")).
+                                             toArray
     CaviarBot.parser.parse(args, CaviarBot.Config()) match {
       case Some(config) =>
         config.mode match {
           case "cart" =>   
-            postCartMessage(formData, config)
+            findRestaurant(config.restaurantName) match {
+              case Some(restaurant) =>
+                postCartMessage(restaurant, formData.channel_id, config)
+              case None =>
+            }
           case "post" =>
             postMessage(formData.channel_id, config.message, opts)
           case _ =>
-            None // TODO error handling
+            None
         }
       case None =>
         None 
     }
   }
 
-  def postCartMessage(formData: SlackSlashFormData, config: CaviarBot.Config): Option[PostMessageResponse] = {
-    Database.findRestaurant(config.restaurantName) match {
-      case Some(restaurant) =>
-        val attachments = restaurant.toSlackAttachment
-        val cartOpts  = opts + ("attachments" -> attachments)
-        val body = s"@channel ${config.message} ${config.url}"
-        Some(chat.postMessage(formData.channel_id, body, cartOpts))
-      case None => 
-        None // error
-    }
+  /** Factored out for testing purposes */
+  def findRestaurant(name: String): Option[Restaurant] = Database.findRestaurant(name)
+
+  def postCartMessage(restaurant: Restaurant, channel_id: String,  config: CaviarBot.Config): Option[PostMessageResponse] = {
+    val attachments = restaurant.toSlackAttachment
+    val cartOpts  = opts + ("attachments" -> attachments)
+    val body = s"@channel ${config.message} ${config.url}"
+    Some(chat.postMessage(channel_id, body, cartOpts))
   }
 
   /** Post a tracking url */
