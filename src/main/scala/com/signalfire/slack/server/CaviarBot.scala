@@ -11,6 +11,7 @@ class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlas
     val args = """[\""'].+?[\""']|[^ ]+""".r.findAllIn(formData.text).
                                              map(_.replaceAll("""['"]""", "")).
                                              toArray
+    println(s"""args: ${args.mkString("; ")} text: ${formData.text}""")
     CaviarBot.parser.parse(args, CaviarBot.Config()) match {
       case Some(config) =>
         config.mode match {
