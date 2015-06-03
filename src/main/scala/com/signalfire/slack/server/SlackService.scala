@@ -1,7 +1,5 @@
 package com.signalfire.slack.server
 
-//import com.signalfire.slack.CaviarBot
-
 import akka.actor._
 import spray.routing._
 import spray.json._
