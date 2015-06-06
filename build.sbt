@@ -17,9 +17,13 @@ mainClass in Compile := Some("com.signalfire.slack.server.Main")
 
 mainClass in (Compile, run) := Some("com.signalfire.slack.server.Main")
 
-resolvers += Resolver.sonatypeRepo("public")
-
-resolvers += "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/"
+resolvers ++= Seq(                                                                  
+  "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
+  "ScalaNLP Maven2" at "http://repo.scalanlp.org/repo",                             
+  "Scala Tools Snapshots" at "http://scala-tools.org/repo-snapshots/",              
+  Resolver.sonatypeRepo("public"),
+  "Sonatype Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots/"
+)                                                                                   
 
 version := "0.1"
 
@@ -45,6 +49,19 @@ libraryDependencies ++= {
     "org.mockito" % "mockito-core" % "1.8.5",
     "joda-time" % "joda-time" % "2.5",
     "org.joda" % "joda-convert" % "1.2",
-    "postgresql" % "postgresql" % "9.0-801.jdbc4"
+    "postgresql" % "postgresql" % "9.0-801.jdbc4",
+    "org.scalanlp" %% "epic" % "0.2",
+    "org.scalanlp" %% "epic-parser-en-span" % "2015.1.25",
+    "org.scalanlp" %% "epic-ner-en-conll" % "2015.1.25",
+    "junit" % "junit" % "4.5" % "test",                                                                                               
+    "org.scalanlp" %% "breeze" % "0.9",                                                                                               
+    "org.scalanlp" %% "breeze-config" % "0.9.1",                                                                                      
+    "org.scalanlp" %% "nak" % "1.3",                                                                                                  
+    "org.mapdb" % "mapdb" % "0.9.2",                                                                                                  
+    ("org.apache.tika" % "tika-parsers" % "1.5").exclude ("edu.ucar", "netcdf").exclude("com.googlecode.mp4parser","isoparser"),      
+    "de.l3s.boilerpipe" % "boilerpipe" % "1.1.0",
+    "net.sourceforge.nekohtml" % "nekohtml" % "1.9.21",//needed by boilerpipe
+    "org.slf4j" % "slf4j-simple" % "1.7.6",
+    "org.apache.commons" % "commons-lang3" % "3.3.2"
   )
 }

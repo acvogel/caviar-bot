@@ -49,19 +49,6 @@ class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlas
     Some(chat.postMessage(channel_id, body, cartOpts))
   }
 
-  /** Post a tracking url */
-  def postMessage(channelID: String,
-                  message: String,
-                  opts: Map[String, String]): Option[PostMessageResponse] = {
-    var response: Option[PostMessageResponse] = None
-    try {
-      response = Some(chat.postMessage(channelID, message, opts))
-    } catch {
-      case e: Exception => 
-        println(s"Caught exception: ${e.toString}")
-    }
-    response
-  }
 }
 
 object CaviarBot {

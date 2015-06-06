@@ -13,7 +13,7 @@ class RandBot(token: String, name: String, icon_url: String) extends SlackSlashB
         val name = if (outcome.sum == 2) "heads" else "tails"
         s"${formData.user_name} flipped a coin:\n$name"
     }
-    postMessage(formData.channel_id, message)
+    postMessage(formData.channel_id, message, opts)
   }
 
   def roll(dice: Int, sides: Int): Seq[Int] = 1 to dice map { _ => Random.nextInt(sides) + 1 }

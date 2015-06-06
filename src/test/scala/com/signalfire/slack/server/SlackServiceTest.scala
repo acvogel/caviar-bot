@@ -7,6 +7,7 @@ import spray.testkit.ScalatestRouteTest
 import spray.http.FormData
 
 import org.scalatest.mock.MockitoSugar
+import org.mockito.ArgumentMatcher
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 
@@ -24,12 +25,17 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
   val user_name = "Steve"
   val restaurant = Restaurant(0, "Cha Cha Cha", "", "")
 
+
   val randBot = spy(new RandBot(token, "", ""))
-  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(randBot).postMessage(anyString, anyString)
+  //doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(randBot).postMessage(anyString, anyString, anyObject.asInstanceOf[Map[String,String]])
+  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(randBot).postMessage(anyString, anyString, anyObject.asInstanceOf[Map[String,String]])
 
   val caviarBot = spy(new CaviarBot(token, "", ""))
   doReturn(Some(restaurant)).when(caviarBot).findRestaurant("cha cha")
   doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(caviarBot).postCartMessage(restaurant, channel_id, CaviarBot.Config("cart", "cha cha", "www.google.com", "lunch cart"))
+
+  val nlpBot = spy(new NLPBot(token, "", ""))
+  doReturn(Some(PostMessageResponse(true, "", "", DateTime.now))).when(nlpBot).postMessage(anyString, anyString, anyObject.asInstanceOf[Map[String,String]])
 
 
   /** Make a post request for a Slack slash command */
@@ -49,7 +55,7 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
     Post("/rand", slashCommandFormData("rand", "")) ~> slackServiceRoute ~> check {
       assert(status == OK)
       val answerRegex = s"$user_name flipped a coin:\n(heads|tails)"
-      verify(randBot).postMessage(matches(channel_id), matches(answerRegex))
+      verify(randBot).postMessage(matches(channel_id), matches(answerRegex), anyObject.asInstanceOf[Map[String,String]])
     }
   }
 
@@ -57,7 +63,7 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
     Post("/rand", slashCommandFormData("rand", "3d4")) ~> slackServiceRoute ~> check {
       assert(status == OK)
       val answerRegex = s"$user_name rolled 3d4:\n[1-4] \\+ [1-4] \\+ [1-4] = ((1[012])|([1-9]))"
-      verify(randBot).postMessage(matches(channel_id), matches(answerRegex))
+      verify(randBot).postMessage(matches(channel_id), matches(answerRegex), anyObject.asInstanceOf[Map[String,String]])
     }
   }
 
@@ -78,4 +84,41 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
       assert(status == OK)
     }
   }
+
+  test("/nlp should parse") {
+    val text = "Uber raised a large round and is challenging Lyft for marketshare."
+    Post("/nlp", slashCommandFormData("nlp", text)) ~> slackServiceRoute ~> check {
+      val parse = 
+"""(TOP (S
+    (NP (NNP Uber) )
+    (VP
+      (VP (VBD raised)
+        (NP (DT a)  (JJ large)  (NN round) ))
+      (CC and)
+      (VP (VBZ is)
+        (VP (VBG challenging)
+          (NP (NNP Lyft) )
+          (PP (IN for)
+            (NP (NN marketshare) )))))
+    (. .) ))"""
+      verify(nlpBot).postMessage(matches(channel_id), argThat(IsMatchingParse(parse)), anyObject.asInstanceOf[Map[String, String]])
+    }
+  }
+
+  class IsMatchingParse(parse: String) extends ArgumentMatcher[String] {
+    def matches(obj: Any): Boolean = {
+      obj match {
+        case str: String =>
+          parse.split("\\s").mkString equals str.split("\\s").mkString
+        case None => false
+      }
+    }
+  }
+  
+  object IsMatchingParse {
+    def apply(parse: String): IsMatchingParse = {
+      new IsMatchingParse(parse)
+    }
+  }
 }
+

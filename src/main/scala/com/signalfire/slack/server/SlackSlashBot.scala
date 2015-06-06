@@ -20,19 +20,15 @@ abstract class SlackSlashBot(token: String, name: String, icon_url: String) exte
 
   /** Post a tracking url */
   def postMessage(channelID: String,
-                  message: String): Option[PostMessageResponse] = {
-    var retries = 1
+                  message: String,
+                  opts: Map[String, String] = opts): Option[PostMessageResponse] = {
     var response: Option[PostMessageResponse] = None
-    do {
-      try {
-        response = Some(chat.postMessage(channelID, message, opts))
-      } catch {
-        case e: Exception => 
-          retries -= 1
-          println(s"Caught exception: ${e.toString}")
-          Thread.sleep(SLEEP_TIME)
-      }
-    } while(!response.isDefined && retries > 0)
+    try {
+      response = Some(chat.postMessage(channelID, message, opts))
+    } catch {
+      case e: Exception => 
+        println(s"Caught exception: ${e.toString}")
+    }
     response
   }
 
