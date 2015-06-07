@@ -19,7 +19,7 @@ class NLPBot(token: String, name: String, icon_url: String) extends SlackSlashBo
   val parser = ParserSelector.loadParser().get
   val ner = NerSelector.loadNer().get
 
-  def handlePostRequest(formData: SlackSlashFormData) {
+  def handlePostRequest(formData: SlackSlashFormData): Option[String] = {
     val preprocessed = preprocess.preprocess(formData.text) // wrong.
     val parsed = preprocessed.par.map(parser).seq
     val parseLines = for((tree, sentence) <- parsed zip preprocessed) yield {
@@ -31,5 +31,6 @@ class NLPBot(token: String, name: String, icon_url: String) extends SlackSlashBo
     //val nerLines = nered.map(_.render)
     //val str = s"${nerLines.mkString("\n")}\n${parseLines.mkString("\n")}"
     postMessage(formData.channel_id, str)
+    None
   }
 }

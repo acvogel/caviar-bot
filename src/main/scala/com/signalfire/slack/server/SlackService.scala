@@ -25,6 +25,13 @@ trait SlackService extends HttpService {
   def caviarBot: SlackSlashBot
   def nlpBot: SlackSlashBot
 
+  def completeBot(optStr: Option[String]) = {
+    optStr match {
+      case Some(str) => complete(str)
+      case None => complete(HttpResponse(status = 200))
+    }
+  }
+
   val slackServiceRoute = {
     path("ping") {
       get {
@@ -32,21 +39,18 @@ trait SlackService extends HttpService {
       }
     } ~
     path("rand") {
-      entity(as[FormData]) { formData =>
-        randBot.handlePostRequest(SlackSlashFormData(formData))
-        complete(HttpResponse(status = 200))
+      entity(as[FormData]) { formData => 
+        completeBot(randBot.handlePostRequest(SlackSlashFormData(formData)))
       }
     } ~
     path("caviar") {
       entity(as[FormData]) { formData =>
-        caviarBot.handlePostRequest(SlackSlashFormData(formData))
-        complete(HttpResponse(status = 200))
+        completeBot(caviarBot.handlePostRequest(SlackSlashFormData(formData)))
       }
     } ~
     path("nlp") {
       entity(as[FormData]) { formData =>
-        nlpBot.handlePostRequest(SlackSlashFormData(formData))
-        complete(HttpResponse(status = 200))
+        completeBot(nlpBot.handlePostRequest(SlackSlashFormData(formData)))
       }
     }
   }

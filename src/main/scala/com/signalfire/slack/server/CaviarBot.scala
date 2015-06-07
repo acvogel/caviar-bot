@@ -7,9 +7,8 @@ import spray.http.FormData
 
 class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlashBot(token, name, icon_url) {
   
-  def handlePostRequest(formData: SlackSlashFormData) {
+  def handlePostRequest(formData: SlackSlashFormData): Option[String] = {
     val args = parseArgs(formData.text)
-    println(s"""args: ${args.mkString("; ")} text: ${formData.text}""")
     CaviarBot.parser.parse(args, CaviarBot.Config()) match {
       case Some(config) =>
         config.mode match {
@@ -17,18 +16,18 @@ class CaviarBot(token: String, name: String, icon_url: String) extends SlackSlas
             findRestaurant(config.restaurantName) match {
               case Some(restaurant) =>
                 postCartMessage(restaurant, formData.channel_id, config)
+                None
               case None =>
-                postMessage(formData.channel_id, s"""Missing restaurant "${config.restaurantName}"""", opts)
+                Some(s"""Missing restaurant "${config.restaurantName}"""")
             }
           case "post" =>
             postMessage(formData.channel_id, config.message, opts)
-          case _ =>
-            postMessage(formData.channel_id, s"""Unknown caviar command: "${formData.text}"""", opts)
             None
+          case _ =>
+            Some(s"""Unknown caviar command: "${formData.text}"""")
         }
       case None =>
-        postMessage(formData.channel_id, s"""Unknown caviar command: "${formData.text}"""", opts)
-        None 
+        Some(s"""Unknown caviar command: "${formData.text}"""")
     }
   }
 

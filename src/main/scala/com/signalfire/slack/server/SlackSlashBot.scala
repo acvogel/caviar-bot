@@ -7,7 +7,7 @@ import spray.http.FormData
 
 abstract class SlackSlashBot(token: String, name: String, icon_url: String) extends SlackClient(token) {
 
-  def handlePostRequest(formData: SlackSlashFormData): Unit
+  def handlePostRequest(formData: SlackSlashFormData): Option[String]
 
   val SLEEP_TIME = 1000 
 

@@ -85,6 +85,7 @@ class SlackServiceTest extends FunSuite with ScalatestRouteTest with MockitoSuga
     }
   }
 
+
   test("/nlp should parse") {
     val text = "Uber raised a large round and is challenging Lyft for marketshare."
     Post("/nlp", slashCommandFormData("nlp", text)) ~> slackServiceRoute ~> check {
