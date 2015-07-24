@@ -1,5 +1,6 @@
 package com.signalfire.slack.server
 
+/*
 import com.flyberrycapital.slack.SlackClient
 import com.flyberrycapital.slack.Responses.PostMessageResponse
 
@@ -34,3 +35,4 @@ class NLPBot(token: String, name: String, icon_url: String) extends SlackSlashBo
     None
   }
 }
+*/
