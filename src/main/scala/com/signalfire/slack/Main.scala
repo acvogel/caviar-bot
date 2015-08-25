@@ -1,4 +1,4 @@
-package com.signalfire.slack.server
+package com.signalfire.slack
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO

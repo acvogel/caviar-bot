@@ -1,4 +1,4 @@
-package com.signalfire.slack.server
+package com.signalfire.slack.models
 
 import play.api.libs.json.{Json, JsValue}
 

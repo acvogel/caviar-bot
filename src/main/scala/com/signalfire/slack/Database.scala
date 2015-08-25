@@ -1,4 +1,6 @@
-package com.signalfire.slack.server
+package com.signalfire.slack
+
+import com.signalfire.slack.models._
 
 import java.net.URI
 import java.sql.{Connection, DriverManager, Statement, PreparedStatement, ResultSet}

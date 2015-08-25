@@ -1,4 +1,4 @@
-package com.signalfire.slack.server
+package com.signalfire.slack
 
 import akka.actor._
 import spray.routing._

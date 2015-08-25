@@ -1,4 +1,4 @@
-package com.signalfire.slack.server
+package com.signalfire.slack
 
 import scala.util.Random
 
