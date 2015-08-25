@@ -1,21 +1,16 @@
 import NativePackagerKeys._
-import AssemblyKeys._
 
 packageArchetype.java_application
-
-assemblySettings
 
 test in assembly := {}
 
 mainClass in assembly := Some("com.signalfire.slack.CaviarBot")
 
-//mainClass in assembly := Some("com.signalfire.slack.FacelessBot")
-
 name := "caviar-bot"
 
-mainClass in Compile := Some("com.signalfire.slack.server.Main")
+mainClass in Compile := Some("com.signalfire.slack.Main")
 
-mainClass in (Compile, run) := Some("com.signalfire.slack.server.Main")
+mainClass in (Compile, run) := Some("com.signalfire.slack.Main")
 
 resolvers ++= Seq(                                                                  
   "Typesafe Repo" at "http://repo.typesafe.com/typesafe/releases/",
@@ -30,7 +25,6 @@ version := "0.1"
 scalaVersion := "2.11.2"
 
 crossScalaVersions ++= Seq("2.10.4", "2.11.2")
-
 
 libraryDependencies ++= { 
   val akkaV = "2.3.9"
@@ -65,4 +59,14 @@ libraryDependencies ++= {
     "org.apache.commons" % "commons-lang3" % "3.3.2",
     "org.seleniumhq.selenium" % "selenium-java" % "2.47.1"
   )
+}
+
+val meta = """META.INF(.)*""".r
+assemblyMergeStrategy in assembly := {
+  case PathList("javax", "servlet", xs @ _*) => MergeStrategy.first
+  case PathList(ps @ _*) if ps.last endsWith ".html" => MergeStrategy.first
+  case n if n.startsWith("reference.conf") => MergeStrategy.concat
+  case n if n.endsWith(".conf") => MergeStrategy.concat
+  case meta(_) => MergeStrategy.discard
+  case x => MergeStrategy.first
 }
