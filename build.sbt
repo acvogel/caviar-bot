@@ -62,6 +62,7 @@ libraryDependencies ++= {
     //"de.l3s.boilerpipe" % "boilerpipe" % "1.1.0",
     //"net.sourceforge.nekohtml" % "nekohtml" % "1.9.21",//needed by boilerpipe
     //"org.slf4j" % "slf4j-simple" % "1.7.6",
-    "org.apache.commons" % "commons-lang3" % "3.3.2"
+    "org.apache.commons" % "commons-lang3" % "3.3.2",
+    "org.seleniumhq.selenium" % "selenium-java" % "2.47.1"
   )
 }
