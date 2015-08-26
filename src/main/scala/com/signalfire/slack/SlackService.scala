@@ -13,7 +13,7 @@ class SlackServiceActor extends Actor with SlackService {
   val token = sys.env("SLACK_TOKEN")
   def randBot = new RandBot(token, "rand paul", "http://i.imgur.com/hFPz2fM.jpg")
   def caviarBot = new CaviarBot(token, "Caviar", "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png")
-  //def nlpBot = new NLPBot(token, "NLP", "http://www.startrek.com/legacy_media/images/200307/data03/320x240.jpg")
+  def pollBot = new PollBot(token, "Caviar", "https://pbs.twimg.com/profile_images/553292236109008896/YM2-dI9q.png")
 
   def receive = runRoute(slackServiceRoute)
 }
@@ -23,7 +23,7 @@ trait SlackService extends HttpService {
   def token: String
   def randBot: SlackSlashBot
   def caviarBot: SlackSlashBot
-  //def nlpBot: SlackSlashBot
+  def pollBot: SlackSlashBot
 
   def completeBot(optStr: Option[String]) = {
     optStr match {
@@ -46,6 +46,11 @@ trait SlackService extends HttpService {
     path("caviar") {
       entity(as[FormData]) { formData =>
         completeBot(caviarBot.handlePostRequest(SlackSlashFormData(formData)))
+      }
+    } ~ 
+    path("vote") {
+      entity(as[FormData]) { formData =>
+        completeBot(pollBot.handlePostRequest(SlackSlashFormData(formData)))
       }
     }
     // ~
